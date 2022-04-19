@@ -1,19 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Login from './Login/Login';
+import { BrowserRouter,Routes,Route, Outlet } from "react-router-dom";
+import Create from './Login/Create';
+
 
 function Example() {
     return (
-        <div className="container">
-            <div className="row justify-content-center">
-                <div className="col-md-8">
-                    <div className="card">
-                        <div className="card-header">Example Component</div>
+        <>
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Login />} />
+                <Route path="/create_user" element={<Create />} />
+            </Routes>
+       </BrowserRouter>
 
-                        <div className="card-body">I'm an example component!</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </>
+        
     );
 }
 
