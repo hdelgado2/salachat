@@ -1,64 +1,27 @@
 import React,{useState} from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import Axios from "axios";
+import { useForm } from 'react-hook-form'
+import axios from 'axios';
 
 const Create = () => {
-    const [Form, setForm] = useState({
-        "name":"",
-        "email":"",
-        "pass":"",
-        "rptPass":""
-    });
-    let navigate = useNavigate();
-    const [Name, setName] = useState([])
-    const [Email, setEmail] = useState([]);
-    const [Pass, setPass] = useState([])
-    const [rptPass, setrptPass] = useState([])
-    const sendForm = async(e) =>{
-        e.preventDefault();
-        
-        try {
-            let datos = await Axios.post('api/user',{
-                Form                             
-            })
-            let {error,ok,route} = datos.data;
-                if(ok === 422){
-                     throw error
-                }else{
-                    navigate(route)
-                }
-        } catch ({name,email,pass,rptPass}) {
-                if(name !== undefined) {
-                    name.map(elem => setName([...Name,elem]));
-                    
-                }
-                if(email !== undefined){
-                     email.map(elem => setEmail([...Email,email]));
-                }
-                if(pass !== undefined){
-                    pass.map((elem) => setPass([...Pass,elem]))
-                }
+    
+    const {register,handleSubmit,formState:{errors}} = useForm();
+    const navigate = useNavigate();
+    const onSubmit = async (datos,e) =>{
+        e.preventDefault()
+        await axios.post('api/user',datos)
+                 .then(({data}) => {
+                     if(data.ok === 200) {
 
-                if(rptPass !== undefined){
-                    rptPass.map((elem) => setrptPass([...rptPass,elem]))
-                }
-                setInterval(() => {
-                    setName([]);
-                    setEmail([]);
-                    setPass([])
-                    setrptPass([])
-                },7000);
-        }
-    }
-
-    const Validation = ({elem}) => {
-
-        return(
-            <>
-              <p style={{color:"red"}}>{elem}</p>
-            </>
-        )
-
+                        toastr.success('Se Ha Registrado Con Exito')
+                        setInterval(() => {
+                            navigate(data.route);
+                        },3000);
+                        
+                    }else if(data.ok === 422){
+                        toastr.error(data.message)
+                    }
+                 });            
     }
 
     return (
@@ -66,84 +29,116 @@ const Create = () => {
         <div className="card">
         <div className="card-body register-card-body">
             <p className="login-box-msg">Register a new membership</p>
-            <form  onSubmit={e => sendForm(e)}>
+            <form onSubmit={handleSubmit(onSubmit)}>
             <div className="input-group mb-3">
-                <input type="text"
-                 onChange={e => setForm({...Form,[e.target.id]:e.target.value})} 
-                 id="name" 
-                 value={Form.name}
-                 className={`form-control ${(Name.length > 0) ? "is-invalid":""}`}
+                <input type="text"  
+
+                 name='name'
+                 {...register("name",{
+                     required:{
+                         value:true,
+                         message:"es requerido"
+                     }
+                 })}
+                 className={`form-control ${errors?.name ? 'is-invalid':""}`}
                  placeholder="Full name" />
                 <div className="input-group-append">
                 <div className="input-group-text">
                     <span className="fas fa-user" />
                 </div>
-                <br></br>
-                {Name && Name.map((elem,index) => <Validation key={index} elem={elem}/>)}
-
+                <span className="text-danger">{errors?.name?.message}</span>
                 </div>
             </div>
             <div className="input-group mb-3">
                 <input type="email" 
-                 id="email" 
-                 onChange={e => setForm({...Form,[e.target.id]:e.target.value})} 
-                 className={`form-control ${(Email.length > 0) ? "is-invalid":""}`}
+                 id="email"
+                 name="email" 
+                 {...register("email",{
+                     required:{
+                         value:true,
+                         message:"es requerido"
+                     }
+                 })}
+                 className={`form-control ${errors?.email ? 'is-invalid':""}`}
                  placeholder="Email" />
                 <div className="input-group-append">
                 <div className="input-group-text">
                     <span className="fas fa-envelope" />
                 </div>
-                {Email && Email.map((elem,index) => <Validation key={index} elem={elem}/>)}
+                <span className="text-danger">{errors?.email?.message}</span>
                 </div>
             </div>
             <div className="input-group mb-3">
                 <input type="password" 
                  id="pass"
-                 onChange={e=>setForm({...Form,[e.target.id]:e.target.value})}
-                 className={`form-control ${(Pass.length > 0) ? "is-invalid":""}`}
+                 name="pass"
+                 {...register("pass",{
+                     required:{
+                         value:true,
+                         message:"es requerido"
+                     }
+                 })}
+                 className={`form-control ${errors?.pass ? 'is-invalid':""}`}
                  placeholder="Password" />
-
                 <div className="input-group-append">
                 <div className="input-group-text">
                     <span className="fas fa-lock" />
                 </div>
-                {Pass && Pass.map((elem,index) => <Validation key={index} elem={elem}/>)}
+                <span className="text-danger">{errors?.pass?.message}</span>
                 </div>
             </div>
             <div className="input-group mb-3">
                 <input 
                  type="password" 
+                 name="rptPass"
+                 {...register("rptPass",{
+                    required:{
+                        value:true,
+                        message:"es requerido"
+                    }
+                })}
+                 className={`form-control ${errors?.rptPass ? 'is-invalid':""}`}
                  placeholder="Retype password" 
-                 id="rptPass"
-                 className={`form-control ${(rptPass.length > 0) ? "is-invalid":""}`}
-                 onChange={e=>setForm({...Form,[e.target.id]:e.target.value})}/>
+                 />
                 <div className="input-group-append">
                 <div className="input-group-text">
                     <span className="fas fa-lock" />
                 </div>
-                {rptPass && rptPass.map((elem,index) => <Validation key={index} elem={elem}/>)}
+                <span className="text-danger">{errors?.rptPass?.message}</span>
                 </div>
             </div>
             <div className="row">
                 <div className="col-8">
                 <div className="icheck-primary">
-                    <input type="checkbox" id="agreeTerms" name="terms" defaultValue="agree" />
+                    <input type="checkbox"
+                     id="agreeTerms"
+                     name="terms"
+                     {...register("terms",{
+                        required:{
+                            value:true,
+                            message:"es requerido"
+                        }
+                    })}
+                   defaultValue="agree" />
                     <label htmlFor="agreeTerms">
                     I agree to the <a href="#">terms</a>
                     </label>
                 </div>
+                <span className="text-danger">{errors?.terms?.message}</span>
                 </div>
-                {/* /.col */}
+                
                 <div className="col-4">
-                <button type="submit" className="btn btn-primary btn-block btn-flat">Register</button>
+                <button 
+                 type="submit" 
+                 className="btn btn-primary btn-block btn-flat">Register</button>
                 </div>
-                {/* /.col */}
+                
             </div>
             </form>
             
             <Link to="/" className="btn btn-info">Atras</Link>
         </div>
-        {/* /.form-box */}
+        
         </div>
 
         </>

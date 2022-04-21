@@ -11,6 +11,8 @@
         <link rel="stylesheet" href="{{asset('icheck-bootstrap/icheck-bootstrap.min.css')}}">
         <!-- Theme style -->
         <link rel="stylesheet" href="{{asset('css/adminlte.min.css')}}">
+        <link rel="stylesheet" href="{{asset('toastr/toastr.min.css')}}">
+
     </head>
     <body class="hold-transition login-page">
         <div class="login-box">
@@ -20,9 +22,10 @@
             </div>
         </div>
         
-        <script src="{{asset('/jquery/jquery.js')}}"></script>
+            <script src="{{asset('/jquery/jquery.js')}}"></script>
             <script src="{{asset('/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
             <script src="{{asset('/bootstrap/js/adminlte.js')}}"></script>
+            <script src="{{asset('toastr/toastr.min.js')}}"></script>
             <script src="/js/app.js"></script>
 
     </body>

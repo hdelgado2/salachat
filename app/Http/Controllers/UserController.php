@@ -34,28 +34,32 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-      $validator = \Validator::make($request->Form,[
-            'name' => 'required',
-            'email' => 'required',
-            'pass' => 'required',
-            "rptPass" => 'required'
-        ]);
-
-        if($validator->fails()){
-            return response()->json([
-                'error' => $validator->errors(),
-                'ok' => 422
-            ]);
-        }
         
-        
-        
+        try {
+            \DB::beginTransaction();
+     
+            if(strcmp($request->pass,$request->rptPass) !== 0){
+                return response()->json([
+                    'ok' => 422,
+                    'message' => 'La contraseña no coinciden'
+                ]);
+            }
+     
             User::create([
-                'name' => $request->Form['name'],
-                'email' => $request->Form['email'],
-                'password' => md5($request->Form['pass']),
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => md5($request->pass),
                ]);
         
+           \DB::commit();
+        } catch (\Exception $th) {
+            \DB::rollback();
+
+            return response()->json([
+                'ok' => $th->getMessage()
+            ]);
+        }
+            
         return response() ->json([
             'ok' => 200,
             'route' => '/'
