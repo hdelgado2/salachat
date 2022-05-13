@@ -38,22 +38,18 @@ class UserController extends Controller
          $user = User::where('email',$request->email)
                  ->where('password',md5($request->password))
                  ->select('email','password')->first();                
-                
+                 
                 if($user !== null){
                     
-                   
-                    try {
-                        if (! $token = Auth::login($user)) {
-                            
-                            return response()->json(['error' => 'invalid_credentials'], 400);
-                        }
-                        
-                    } catch (JWTException $e) {
-                        return response()->json(['error' => 'could_not_create_token'], 500);
-                    }
-    
-                    return response()->json(compact('token'));    
+                  $credentials = $request->collect()->flatten(1);
+                  $attemp = [
+                      'email' => $credentials[0],
+                      'password' => $credentials[1]
+                  ];
                     
+                   $token = Auth::attempt($request->only('email','password'));
+                 
+                    dd($token);
                 }
                 
     }
@@ -76,15 +72,12 @@ class UserController extends Controller
                 ]);
             }
      
-            $user = User::create([
+            User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => md5($request->pass),
                ]);
-            $token = \JWTAuth::fromUser($user);
-            $user->update([
-                'remember_token' => $token
-            ]);
+            
            \DB::commit();
         } catch (\Exception $th) {
             \DB::rollback();
@@ -97,7 +90,7 @@ class UserController extends Controller
         return response() ->json([
             'ok' => 200,
             'route' => '/',
-            'token' => $token
+            
         ]);
            
     }
