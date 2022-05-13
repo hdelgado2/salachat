@@ -1,16 +1,40 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React,{useEffect} from 'react'
+import { Link,useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import axios from 'axios';
 
 const Login = () => {
+    const {register,handleSubmit,formState:{errors}} = useForm();
+    const navigate = useNavigate();
+
+      const enviar = ({email,password},e) => {
+        e.preventDefault();
+
+        axios.post('api/login/',{
+          email,password
+        }).then(({data,status}) => {
+          if(status === 200)
+             navigate(data.path);
+          
+        });
+      }
+
+
     return (
         <>
 
   <div class="card">
   <div className="card-body login-card-body">
     <p className="login-box-msg">Sign in to start your session</p>
-    <form action="../../index3.html" method="post">
+    <form onSubmit={handleSubmit(enviar)}>
       <div className="input-group mb-3">
-        <input type="email" className="form-control" placeholder="Email" />
+        <input 
+          type="email" 
+          name="email" 
+          className="form-control" 
+          placeholder="Email" 
+          {...register('email')}
+          />
         <div className="input-group-append">
           <div className="input-group-text">
             <span className="fas fa-envelope" />
@@ -18,7 +42,14 @@ const Login = () => {
         </div>
       </div>
       <div className="input-group mb-3">
-        <input type="password" className="form-control" placeholder="Password" />
+        <input 
+         type="password" 
+         name="password"  
+         className="form-control" 
+         placeholder="Password" 
+         {...register('password')}
+         />
+        
         <div className="input-group-append">
           <div className="input-group-text">
             <span className="fas fa-lock" />

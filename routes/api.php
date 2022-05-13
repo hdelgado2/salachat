@@ -14,10 +14,17 @@ use App\Http\Controllers\UserController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+#Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+#    return $request->user();
+#});
 
 Route::resource('user', UserController::class);
+Route::post('login/','App\Http\Controllers\UserController@login');
+
+ Route::group(['middleware' => 'api','prefix' => 'auth'], function() {
+
+     Route::post('user','App\Http\Controllers\UserController@getAuthenticatedUser');
+
+ });
 
 
