@@ -26,7 +26,10 @@
             <script src="{{asset('/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
             <script src="{{asset('/bootstrap/js/adminlte.js')}}"></script>
             <script src="{{asset('toastr/toastr.min.js')}}"></script>
-            <script src="/js/app.js"></script>
+            <script src="/js/app.js">
+            
+            </script>
+            
 
     </body>
 </html>

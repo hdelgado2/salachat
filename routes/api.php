@@ -14,10 +14,19 @@ use App\Http\Controllers\UserController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+/*Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});*/
+
+//Route::resource('user', UserController::class);
+
+
+
+Route::group(['middleware' => 'api','prefix' => 'auth'], function() {
+    Route::post('login', 'App\Http\Controllers\UserController@authenticate');
+    Route::post('register', 'App\Http\Controllers\UserController@register');
+    
+    #Route::post('user','App\Http\Controllers\UserController@getAuthenticatedUser');
+
 });
-
-Route::resource('user', UserController::class);
-
 

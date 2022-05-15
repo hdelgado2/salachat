@@ -7,20 +7,21 @@ const Create = () => {
     
     const {register,handleSubmit,formState:{errors}} = useForm();
     const navigate = useNavigate();
-    const onSubmit = async (datos,e) =>{
-        e.preventDefault()
-        await axios.post('api/user',datos)
-                 .then(({data}) => {
-                     if(data.ok === 200) {
+    const onSubmit = async (datos) =>{
 
-                        toastr.success('Se Ha Registrado Con Exito')
+        await axios.post('api/auth/register',datos)
+                 .then(({data}) => {
+                     
+                     
+                     if(data.error === "las Contraseña no coinciden"){
+                        toastr.error(data.error)
+                     }else{
+                        toastr.success(data.message)
                         setInterval(() => {
-                            navigate(data.route);
+                            window.location.href= data.to
                         },3000);
-                        
-                    }else if(data.ok === 422){
-                        toastr.error(data.message)
-                    }
+                    
+                     }
                  });            
     }
 

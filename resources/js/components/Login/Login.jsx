@@ -1,16 +1,33 @@
-import React from 'react'
+import axios from 'axios';
+import React,{ useState } from 'react'
 import { Link } from 'react-router-dom'
 
+
 const Login = () => {
+    const [Form, setForm] = useState({});
+    
+    function HandleChange(e) {
+      setForm({
+        ...Form,
+        [e.target.id]:e.target.value
+      })
+    }
+
+    const submitForm = async (e) => {
+        e.preventDefault();
+        
+        await axios.post('api/auth/login',Form)
+    }
+
     return (
         <>
 
   <div class="card">
   <div className="card-body login-card-body">
     <p className="login-box-msg">Sign in to start your session</p>
-    <form action="../../index3.html" method="post">
+    <form method="post" onSubmit={e => submitForm(e)}>
       <div className="input-group mb-3">
-        <input type="email" className="form-control" placeholder="Email" />
+        <input type="email" id="name" onChange={e=>HandleChange(e)} className="form-control" placeholder="Email" />
         <div className="input-group-append">
           <div className="input-group-text">
             <span className="fas fa-envelope" />
@@ -18,7 +35,7 @@ const Login = () => {
         </div>
       </div>
       <div className="input-group mb-3">
-        <input type="password" className="form-control" placeholder="Password" />
+        <input type="password" id="password" onChange={e=>HandleChange(e)} className="form-control" placeholder="Password" />
         <div className="input-group-append">
           <div className="input-group-text">
             <span className="fas fa-lock" />

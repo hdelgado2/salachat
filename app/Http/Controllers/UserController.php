@@ -2,113 +2,84 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
-use \App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use \JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Log;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+
+    public function __construct()
     {
+        $this->middleware('auth:api',['except'=>['authenticate','register']]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
+    public function authenticate(Request $request)
+    { 
+     
+      try {
 
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
+        $user = User::where('email',$request->name)->where('password',md5($request->get('password')))->first();
         
+        if ( !$token = auth()->login($user)) {
+              return response()->json(['error' => 'no autorizado'], 400);
+          }
+      } catch (JWTException $e) {
+          return response()->json(['error' => 'could_not_create_token'], 500);
+      }
+      return response()->json(compact('token'));
+    }
+
+    public function getAuthenticatedUser()
+    {
         try {
-            \DB::beginTransaction();
-     
-            if(strcmp($request->pass,$request->rptPass) !== 0){
-                return response()->json([
-                    'ok' => 422,
-                    'message' => 'La contraseña no coinciden'
-                ]);
-            }
-     
-            User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => md5($request->pass),
-               ]);
-        
-           \DB::commit();
-        } catch (\Exception $th) {
-            \DB::rollback();
-
-            return response()->json([
-                'ok' => $th->getMessage()
-            ]);
+          if (!$user = JWTAuth::parseToken()->authenticate()) {
+                  return response()->json(['user_not_found'], 404);
+          }
+        } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+                return response()->json(['token_expired'], $e->getStatusCode());
+        } catch (Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+                return response()->json(['token_invalid'], $e->getStatusCode());
+        } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
+                return response()->json(['token_absent'], $e->getStatusCode());
         }
-            
-        return response() ->json([
-            'ok' => 200,
-            'route' => '/'
+        return response()->json(compact('user'));
+    }
+
+
+    public function register(Request $request)
+    {
+    
+        Log::info($request);
+        // $validator = Validator::make($request->all(), [
+        //     'name' => 'required|string|max:255',
+        //     'email' => 'required|string|email|max:255|unique:users',
+        //     'password' => 'required|string|min:6|confirmed',
+        // ]);
+
+        // if($validator->fails()){
+        //         return response()->json($validator->errors()->toJson(),400);
+        // }
+        
+        if(strcmp($request->pass,$request->rptPass) !== 0){
+            return response()->json(["error" => "las Contraseña no coinciden"]);
+        }
+
+        
+        
+         User::create([
+            'name' => $request->get('name'),
+            'email' => $request->get('email'),
+            'password' => md5($request->get('pass')),
         ]);
-           
-    }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        
+        $to = '/';
+        $message = "se ha Registrado con Exito";
+        return response()->json(compact('to','message'),201);
     }
 }
